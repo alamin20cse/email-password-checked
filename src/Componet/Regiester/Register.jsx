@@ -2,6 +2,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import { auth } from '../../firebase.init';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const Register = () => {
     const [errormassage, seterrormassage] = useState('');
@@ -28,7 +29,7 @@ const Register = () => {
             }
 
         if (!passwordRegex.test(password)) {
-            seterrormassage('password must at lest 6 charter,and upper lower');
+            seterrormassage('PASSWORD must be at least 6 characters long, contain at least one lowercase letter, one uppercase letter, one digit, and one special character ');
             return;
         }
        
@@ -112,8 +113,10 @@ const Register = () => {
                 errormassage && <p className='text-red-600 text-3xl'>{errormassage}</p>
             }
             {
-                succes && <p>Succesfully login </p>
+                succes && <p>Succesfully registation </p>
             }
+
+            <p>Already have an account please <Link className='underline' to='/login' >Login</Link> </p>
 
 
         </div>
