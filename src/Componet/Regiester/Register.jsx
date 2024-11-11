@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react';
 import { auth } from '../../firebase.init';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -13,8 +13,11 @@ const Register = () => {
         event.preventDefault();
         const email = event.target.email.value;
         const password = event.target.password.value;
-        const term=event.target.term.checked;
-        // console.log(term)
+        const term = event.target.term.checked;
+
+        const name=event.target.name.value;
+        const photoUrl=event.target.photo.value;
+        console.log(email,password,name,photoUrl,term);
         // console.log('clicked');
 
         // reset error message
@@ -22,23 +25,46 @@ const Register = () => {
         setsucces(false);
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-        if(!term)
-            {
-                seterrormassage('please accpet our trems and condition');
-                return;
-            }
+        if (!term) {
+            seterrormassage('please accpet our trems and condition');
+            return;
+        }
 
         if (!passwordRegex.test(password)) {
             seterrormassage('PASSWORD must be at least 6 characters long, contain at least one lowercase letter, one uppercase letter, one digit, and one special character ');
             return;
         }
-       
+
 
         // create user with email and password
         createUserWithEmailAndPassword(auth, email, password)
             .then((result) => {
                 console.log(result.user);
                 setsucces(true);
+
+
+                // varificaton
+                sendEmailVerification(auth.currentUser)
+                    .then((result) => {
+                        console.log('verafication sent');
+                    })
+
+                    // update profile name and photo url
+                    const profile={
+
+                        displayname:name,
+                        photoURL:photo,
+
+                    }
+                    updateProfile(auth.currentUser,profile)
+                    .then(result=>{
+
+                        console.log('userr profile updated');
+                    })
+                    .catch((eroor)=>{
+                        console.log('ERROR',eroor);
+                    })
+
             })
             .catch((error) => {
                 seterrormassage(error.message);
@@ -56,6 +82,44 @@ const Register = () => {
 
 
             <form onSubmit={handelRegiester} className='py-6'>
+
+
+                {/* photo url */}
+                <label className="input input-bordered flex items-center gap-2 my-6">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                        className="h-4 w-4 opacity-70">
+                        <path
+                            d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
+                        <path
+                            d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
+                    </svg>
+                    <input type="text" name='photo' className="grow" placeholder="Photo url" />
+                </label>
+
+                {/* name */}
+                <label className="input input-bordered flex items-center gap-2 my-6">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                        className="h-4 w-4 opacity-70">
+                        <path
+                            d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
+                        <path
+                            d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
+                    </svg>
+                    <input type="text" name='name' className="grow" placeholder="Name" />
+                </label>
+
+
+
+
+
+
+
 
                 <label className="input input-bordered flex items-center gap-2">
                     <svg
@@ -97,15 +161,15 @@ const Register = () => {
 
                 <div className="form-control">
                     <label className="cursor-pointer label justify-start">
-                    <input type="checkbox" name='term' className="checkbox checkbox-accent" />
+                        <input type="checkbox" name='term' className="checkbox checkbox-accent" />
                         <span className="label-text">Acept our Treams and policy</span>
-                       
+
                     </label>
                 </div>
 
 
 
-                <button className="btn btn-primary btn-wide">Login</button>
+                <button className="btn btn-primary btn-wide">Register</button>
 
             </form>
 
